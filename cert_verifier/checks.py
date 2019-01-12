@@ -154,6 +154,7 @@ class RevocationChecker(VerificationCheck):
         self.revoked_values = revoked_values
 
     def do_execute(self):
+        #print(self.revoked_values)
         revoked = any(k in self.revoked_values for k in self.values_to_check)
         if revoked:
             logging.error('This certificate has been revoked by the issuer')

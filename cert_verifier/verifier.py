@@ -32,8 +32,8 @@ def verify_certificate(certificate_model, options={}):
     verification_steps.execute()
     messages = []
     verification_steps.add_detailed_status(messages)
-    for message in messages:
-        print(message['name'] + ',' + str(message['status']))
+#    for message in messages:
+#        print(message['name'] + ',' + str(message['status']))
 
     return messages
 
@@ -46,13 +46,23 @@ def verify_certificate_file(certificate_file_name, transaction_id=None, options=
                                                        txid=transaction_id,
                                                        certificate_bytes=certificate_bytes)
         result = verify_certificate(certificate_model, options)
-    return result
+        new_res = ['has not been tampered with',
+                   'has not expired',
+                   'has not been revoked',
+                   'issuer authenticity'
+                    ]
+        res = dict()
+        for i in range(0, len(result)):
+            x = result[i]
+            if x['name'] != 'Validation':
+                res[new_res[i]] = (x['status'] == 'passed')
+    return res
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         for cert_file in sys.argv[1:]:
-            print(cert_file)
+#           print(cert_file)
             result = verify_certificate_file(cert_file)
             print(result)
     else:
