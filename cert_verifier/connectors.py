@@ -12,6 +12,10 @@ from cert_verifier import IssuerInfo, IssuerKey
 from cert_verifier import TransactionData
 from cert_verifier.errors import *
 
+import os
+import pathlib
+import configparser
+
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
@@ -125,12 +129,19 @@ class BlockcypherConnector(TransactionLookupConnector):
 
     def __init__(self, chain):
         if chain == Chain.bitcoin_testnet:
-            self.url = 'http://api.blockcypher.com/v1/btc/test3/txs/%s?limit=100'
+            self.url = 'http://api.blockcypher.com/v1/btc/test3/txs/%s?limit=100&token=' + self.get_blockcypher_token()
         elif chain == Chain.bitcoin_mainnet:
-            self.url = 'https://api.blockcypher.com/v1/btc/main/txs/%s?limit=100'
+            self.url = 'https://api.blockcypher.com/v1/btc/main/txs/%s?limit=100&token=' + self.get_blockcypher_token()
         else:
             raise Exception(
                 'unsupported chain (%s) requested with blockcypher collector. Currently only testnet and mainnet are supported' % chain)
+
+    def get_blockcypher_token(self):
+        os_root = str(pathlib.Path.home())
+        ini_file = os.path.join(os_root, '.cert_pdf')
+        config = configparser.RawConfigParser(allow_no_value = True)
+        config.read(ini_file)
+        return config['TOKEN']['blockcypher_token']
 
     def parse_tx(self, json_response):
         revoked = set()
